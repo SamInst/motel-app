@@ -2,14 +2,18 @@ package com.example.appmotel.services;
 
 import com.example.appmotel.exceptions.EntityConflict;
 import com.example.appmotel.exceptions.EntityNotFound;
+import com.example.appmotel.feing.ItensFeing;
+import com.example.appmotel.feing.MapaFeing;
+import com.example.appmotel.feing.QuartosFeing;
 import com.example.appmotel.model.*;
-import com.example.appmotel.repository.*;
+import com.example.appmotel.repository.EntradaConsumoRepository;
+import com.example.appmotel.repository.EntradaRepository;
 import com.example.appmotel.response.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,7 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EntradaService {
     @PersistenceContext
     private EntityManager manager;
-    Float totalMapaGeral;
     double totalHorasEntrada;
     double valorEntrada;
     Duration diferenca;
@@ -31,23 +34,29 @@ public class EntradaService {
     double valorTotal;
     Entradas entradas;
     double entradaEConsumo;
+    Float totalMapaGeral;
 
     List<EntradaConsumo> entradaConsumoList = new ArrayList<>();
     private final EntradaRepository entradaRepository;
-
-    private final MapaGeralRepository mapaGeralRepository;
-    private final RegistroDeEntradasRepository registroDeEntradasRepository;
     private final EntradaConsumoRepository entradaConsumoRepository;
-    private final RegistroEntradaConsumoRepository registroEntradaConsumoRepository;
-    private final PernoitesRepository pernoitesRepository;
 
-    public EntradaService(EntradaRepository entradaRepository, MapaGeralRepository mapaGeralRepository, RegistroDeEntradasRepository registroDeEntradasRepository, EntradaConsumoRepository entradaConsumoRepository, RegistroEntradaConsumoRepository registroEntradaConsumoRepository, PernoitesRepository pernoitesRepository) {
+    private final MapaFeing mapaFeing;
+    private final QuartosFeing quartosFeing;
+    private final ItensFeing itensFeing;
+
+    @Autowired
+    public EntradaService(
+    EntradaRepository entradaRepository,
+    EntradaConsumoRepository entradaConsumoRepository,
+    MapaFeing mapaFeing,
+    QuartosFeing quartosFeing,
+    ItensFeing itensFeing
+    ) {
         this.entradaRepository = entradaRepository;
-        this.mapaGeralRepository = mapaGeralRepository;
-        this.registroDeEntradasRepository = registroDeEntradasRepository;
         this.entradaConsumoRepository = entradaConsumoRepository;
-        this.registroEntradaConsumoRepository = registroEntradaConsumoRepository;
-        this.pernoitesRepository = pernoitesRepository;
+        this.mapaFeing = mapaFeing;
+        this.quartosFeing = quartosFeing;
+        this.itensFeing = itensFeing;
     }
 
     public List<EntradaSimplesResponse> findAll (){
@@ -56,10 +65,11 @@ public class EntradaService {
         findAll.forEach( entradas ->{
             EntradaSimplesResponse entradaSimplesResponse = new EntradaSimplesResponse(
                     entradas.getId(),
-                    entradas.getApt(),
+                    entradas.getQuartos().getNumero(),
                     entradas.getHoraEntrada(),
                     entradas.getHoraSaida(),
-                    entradas.getPlaca()
+                    entradas.getPlaca(),
+                    entradas.getStatusEntrada()
             );
             entradaSimplesResponseList.add(entradaSimplesResponse);
         });
@@ -74,15 +84,25 @@ public class EntradaService {
         calcularHora();
 
         Double totalConsumo = manager.createQuery(
-          "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = m.entradas.id", Double.class)
-             .getSingleResult();
+                        "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = :id", Double.class)
+                .setParameter("id", id)
+                .getSingleResult();
         if (totalConsumo == null){
             totalConsumo = (double) 0;
         }
-                double total0 = totalHorasEntrada + totalConsumo;
-
+        double soma = totalConsumo + valorEntrada;
+        List<ConsumoResponse> consumoResponseList = new ArrayList<>();
+        entradaConsumoList.forEach(consumo -> {
+            ConsumoResponse consumoResponse = new ConsumoResponse(
+                    consumo.getQuantidade(),
+                    consumo.getItens().getDescricao(),
+                    consumo.getItens().getValor(),
+                    consumo.getTotal()
+            );
+            consumoResponseList.add(consumoResponse);
+        });
         response.set(new EntradaResponse(
-                entrada.getApt(),
+                entrada.getQuartos().getNumero(),
                 entrada.getHoraEntrada(),
                 entrada.getHoraSaida(),
                 entrada.getPlaca(),
@@ -90,70 +110,71 @@ public class EntradaService {
                         horas,
                         minutosRestantes
                 ),
-                entradaConsumoList,
-                        totalConsumo,
-                        valorEntrada,
-                total0
+                consumoResponseList,
+                entrada.getStatusEntrada(),
+                totalConsumo,
+                valorEntrada,
+                soma
         ));
         return ResponseEntity.ok(response);
     }
 
     public Entradas registerEntrada(Entradas entradas) {
+        Quartos quartoOut = quartosFeing.findById(entradas.getQuartos().getId());
+        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.OCUPADO)){
+            throw new EntityConflict("Quarto Ocupado");
+        }
+        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.NECESSITA_LIMPEZA)){
+            throw new EntityConflict("Quarto Precisa de limpeza!");
+        }
+        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.RESERVADO)){
+            throw new EntityConflict("Quarto Reservado!");
+        }
         entradas.setHoraEntrada(LocalTime.now());
         entradas.setHoraSaida(LocalTime.of(0,0));
         entradas.setStatus_pagamento(StatusPagamento.PENDENTE);
         entradas.setTipoPagamento(TipoPagamento.PENDENTE);
-        validacaoDeApartamento(entradas);
+        entradas.setStatusEntrada(StatusEntrada.EM_ANDAMENTO);
+
+        quartoOut.setStatusDoQuarto(StatusDoQuarto.OCUPADO);
+        quartosFeing.saveQuartos(quartoOut);
         return entradaRepository.save(entradas);
     }
 
     public void updateEntradaData(Long entradaId, Entradas request) {
         entradas = entradaRepository.findById(entradaId).orElseThrow(() -> new EntityNotFound("Entrada não encontrada"));
 
-       var entradaAtualizada = new Entradas(
-                    entradas.getId(),
-                    entradas.getApt(),
-                    entradas.getHoraEntrada(),
-                    LocalTime.now(),
-                    entradas.getPlaca(),
-                    request.getTipoPagamento(),
-                    request.getStatus_pagamento()
-            );
+        var entradaAtualizada = new Entradas(
+                entradas.getId(),
+                entradas.getQuartos(),
+                entradas.getHoraEntrada(),
+                LocalTime.now(),
+                entradas.getPlaca(),
+                request.getTipoPagamento(),
+                request.getStatus_pagamento(),
+                entradas.getStatusEntrada()
+        );
         entradaRepository.save(entradaAtualizada);
 
         if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)) {
+            if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)
+                    && entradaAtualizada.getStatusEntrada().equals(StatusEntrada.FINALIZADA)){
+                throw new EntityConflict("A Entrada já foi salva no mapa");
+            }
             entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(entradaId);
             calcularHora();
-            validacaoPagamento(request);
+            if (entradaAtualizada.getEntradaConsumo() == null) {
+                consumoVazio();
+            }
+            validacaoPagamento(entradas);
             validacaoHorario();
             salvaNoMapa(request);
 
-
-            List<RegistroConsumoEntrada> registroConsumoEntradaList = new ArrayList<>();
-            RegistroConsumoEntrada registroConsumoEntrada = new RegistroConsumoEntrada();
-            entradaConsumoList.forEach(consumo -> {
-              registroConsumoEntrada.setEntradaConsumoList(entradaConsumoList);
-                registroEntradaConsumoRepository.save(registroConsumoEntrada);
-            });
-            registroConsumoEntradaList.add(registroConsumoEntrada);
-
-            RegistroDeEntradas registroDeEntradas = new RegistroDeEntradas();
-            registroDeEntradas.setApt(entradas.getApt());
-            registroDeEntradas.setHoraEntrada(entradas.getHoraEntrada());
-            registroDeEntradas.setHoraSaida(entradas.getHoraSaida());
-            registroDeEntradas.setPlaca(entradas.getPlaca());
-            registroDeEntradas.setData(LocalDate.now());
-            registroDeEntradas.setTipoPagamento(request.getTipoPagamento());
-            registroDeEntradas.setStatus_pagamento(request.getStatus_pagamento());
-            registroDeEntradas.setHoras(horas);
-            registroDeEntradas.setMinutos(minutosRestantes);
-            registroDeEntradas.setTotal(entradaEConsumo);
-            registroDeEntradas.setEntradaConsumo(registroConsumoEntradaList);
-
-            registroDeEntradasRepository.save(registroDeEntradas);
-
+            Quartos quartoOut = entradas.getQuartos();
+            quartoOut.setStatusDoQuarto(StatusDoQuarto.DISPONIVEL);
+            quartosFeing.saveQuartos(quartoOut);
+            entradaAtualizada.setStatusEntrada(StatusEntrada.FINALIZADA);
             entradaRepository.save(entradaAtualizada);
-            excluirEntradaEConsumo(entradaId);
         }
     }
 
@@ -169,7 +190,7 @@ public class EntradaService {
                     if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
                         totalHorasEntrada = 30.0;
                     } else {
-                        totalHorasEntrada = 30.0 + ((horas - 2) * 7.0);
+                        totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
                         if (minutosRestantes > 0) {
                             totalHorasEntrada += 40.0;
                         }
@@ -180,18 +201,13 @@ public class EntradaService {
     }
 
     private void validacaoPagamento(Entradas request){
-        totalMapaGeral = manager.createQuery("SELECT m.total FROM MapaGeral m ORDER BY m.id DESC", Float.class)
-                .setMaxResults(1)
-                .getSingleResult();
+        totalMapaGeral = mapaFeing.totalMapaGeral();
 
         Double totalConsumo = manager.createQuery(
-                        "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = m.entradas.id", Double.class)
+                        "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = :id", Double.class)
+                .setParameter("id", request.getId())
                 .getSingleResult();
 
-        if (request.getEntradaConsumo() == null) {
-            totalConsumo = (double) 0;
-            consumoVazio();
-        }
         entradaEConsumo = valorEntrada + totalConsumo;
         valorTotal = totalMapaGeral + entradaEConsumo;
     }
@@ -208,72 +224,41 @@ public class EntradaService {
     }
 
     private void salvaNoMapa(Entradas request){
-
-        var novoTotalMapaGeral = totalMapaGeral + entradaEConsumo;
         MapaGeral mapaGeral = new MapaGeral(
         );
-        mapaGeral.setApartment(entradas.getApt());
+        mapaGeral.setApartment(entradas.getQuartos().getNumero());
         mapaGeral.setData(LocalDate.now());
         mapaGeral.setEntrada((float) entradaEConsumo);
         mapaGeral.setReport(relatorio);
-        mapaGeral.setTotal((float) novoTotalMapaGeral);
+        mapaGeral.setTotal((float) valorTotal);
         mapaGeral.setSaida(0F);
         mapaGeral.setHora(LocalTime.now());
 
         if (request.getTipoPagamento().equals(TipoPagamento.PIX)){
             mapaGeral.setReport(relatorio + " (PIX)");
-            mapaGeral.setEntrada(0F);
-            mapaGeral.setTotal(totalMapaGeral);
+            mapaGeral.setSaida(mapaGeral.getEntrada());
         }
         if (request.getTipoPagamento().equals(TipoPagamento.CARTAO)){
             mapaGeral.setReport(relatorio + " (CARTAO)");
-            mapaGeral.setEntrada(0F);
-            mapaGeral.setTotal((float) totalHorasEntrada);
+            mapaGeral.setSaida(mapaGeral.getEntrada());
         }
         if (request.getTipoPagamento().equals(TipoPagamento.DINHEIRO)){
             mapaGeral.setReport(relatorio + " (DINHEIRO)");
         }
-        mapaGeralRepository.save(mapaGeral);
+        mapaFeing.createMapa(mapaGeral);
     }
 
-    private void validacaoDeApartamento(Entradas entradas) throws EntityConflict {
-
-       List<Pernoites> pernoites = pernoitesRepository.findAll();
-         pernoites.forEach(apartamento -> {
-             List<Entradas> listaDeApartamentos = entradaRepository.findByApt(entradas.getApt());
-             List<Pernoites> listaDeApartamentosPernoite = pernoitesRepository.findByApartamento_Id(apartamento.getApartamento().getId());
-             for (Entradas entradaCadastrada : listaDeApartamentos) {
-                 for (Pernoites pernoiteCadastrado : listaDeApartamentosPernoite) {
-                     if ( entradas.getApt().equals(entradaCadastrada.getApt())
-                       || entradas.getHoraSaida() == null ) {
-//                             && apartamento.getApt().equals(entradas.getApt())
-//                             && apartamento.getApt().equals(pernoiteCadastrado.getApt())
-                         throw new EntityConflict("O apartamento está ocupado no momento.");
-                     }
-                     apartamento.getApartamento().setStatusDoQuarto(StatusDoQuarto.OCUPADO);
-//                     if (pernoiteCadastrado.getApt().equals(entradaCadastrada.getApt()))
-////                             && apartamento.getApt().equals(pernoiteCadastrado.getApt()))
-//                     {
-//                         throw new EntityConflict("O apartamento está ocupado no momento.");
-//                     }
-                 }
-             }
-         });
+    private void consumoVazio(){
+        var semConsumo = itensFeing.itemVazio();
+        EntradaConsumo novoConsumo = new EntradaConsumo();
+        novoConsumo.setItens(semConsumo.get());
+        novoConsumo.setQuantidade(0);
+        novoConsumo.setTotal(0F);
+        novoConsumo.setEntradas(entradas);
+        entradaConsumoRepository.save(novoConsumo);
     }
 
-   private void consumoVazio(){
-       Itens semConsumo = manager.createQuery("SELECT m FROM Itens m where  m.id = 8", Itens.class)
-               .getSingleResult();
-       EntradaConsumo novoConsumo = new EntradaConsumo();
-       novoConsumo.setItens(semConsumo);
-       novoConsumo.setQuantidade(0);
-       novoConsumo.setTotal(0F);
-       novoConsumo.setEntradas(entradas);
-       entradaConsumoRepository.save(novoConsumo);
-   }
-
-   private void excluirEntradaEConsumo(Long entradaId){
-       entradaConsumoRepository.deleteEntradaConsumoByEntradas_Id(entradaId);
-       entradaRepository.deleteById(entradaId);
-   }
+    public List<Entradas> findByStatusEntrada(StatusEntrada statusEntrada){
+        return entradaRepository.findEntradasByStatusEntrada(statusEntrada);
+    }
 }

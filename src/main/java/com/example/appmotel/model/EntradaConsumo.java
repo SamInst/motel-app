@@ -1,6 +1,8 @@
 package com.example.appmotel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.Optional;
 
 @Entity
 public class EntradaConsumo {
@@ -13,6 +15,7 @@ public class EntradaConsumo {
     @ManyToOne
     private Itens itens;
 
+    @JsonIgnore
     @ManyToOne
     private Entradas entradas;
 
@@ -34,9 +37,6 @@ public class EntradaConsumo {
     public Itens getItens() {
         return itens;
     }
-    public void setItens(Itens itens) {
-        this.itens = itens;
-    }
     public Entradas getEntradas() {
         return entradas;
     }
@@ -57,5 +57,9 @@ public class EntradaConsumo {
         this.total = quantidade.floatValue() * itens.getValor();
     }
     public EntradaConsumo() {
+    }
+
+    public void setItens(Itens itens) {
+        this.itens = itens;
     }
 }

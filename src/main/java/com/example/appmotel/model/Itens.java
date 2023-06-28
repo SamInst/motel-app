@@ -14,12 +14,12 @@ public class Itens {
     private String descricao;
     private Float valor;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getDescricao() {
@@ -38,7 +38,8 @@ public class Itens {
         this.valor = valor;
     }
 
-    public Itens(String descricao, Float valor) {
+    public Itens(Long id, String descricao, Float valor) {
+        this.id = id;
         this.descricao = descricao;
         this.valor = valor;
     }

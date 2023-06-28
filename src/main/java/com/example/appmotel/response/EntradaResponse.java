@@ -9,7 +9,8 @@ public record EntradaResponse(
         LocalTime hora_saida,
         String placa,
         TempoPermanecido tempo_permanecido,
-        List<com.example.appmotel.model.EntradaConsumo> consumo,
+        List<ConsumoResponse> consumo,
+        StatusEntrada statusEntrada,
 
         double total_consumo,
         double valor_entrada,
@@ -19,9 +20,4 @@ public record EntradaResponse(
             int horas,
             int minutos
     ){}
-
-//    public record EntradaConsumo(
-//            String Item,
-//            Float valor
-//    ){}
 }

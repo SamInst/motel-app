@@ -1,13 +1,10 @@
 package com.example.appmotel.model;
 
-
 import com.example.appmotel.response.StatusDoQuarto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tb_quartos")
 public class Quartos {
     @Id
     private Long id;

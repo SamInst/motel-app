@@ -1,8 +1,10 @@
 package com.example.appmotel.controllers;
 
+
 import com.example.appmotel.model.Entradas;
 import com.example.appmotel.response.EntradaResponse;
 import com.example.appmotel.response.EntradaSimplesResponse;
+import com.example.appmotel.response.StatusEntrada;
 import com.example.appmotel.services.EntradaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,5 +42,9 @@ public class EntradaController {
     @PutMapping("/{id}")
     void atualizarEntrada (@PathVariable ("id") Long entradaID, @RequestBody Entradas entradas){
          entradaService.updateEntradaData(entradaID, entradas);
+    }
+    @GetMapping("/findByStatusEntrada")
+    public List<Entradas> findByStatus(StatusEntrada statusEntrada){
+        return entradaService.findByStatusEntrada(statusEntrada);
     }
 }

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Table(name = "tb_mapa_geral")
 @Entity
 public class MapaGeral {
     @Id
