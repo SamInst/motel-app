@@ -9,11 +9,12 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
+@Table(name = "tb_entradas")
 public class Entradas {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Quartos quartos;
     private LocalTime horaEntrada;
     private LocalTime horaSaida;

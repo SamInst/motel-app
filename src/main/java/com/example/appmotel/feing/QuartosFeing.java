@@ -10,12 +10,12 @@ public interface QuartosFeing {
     @GetMapping
     List<Quartos> findQuartosFeing();
 
-    @GetMapping("/{id}")
-    Quartos findById(@PathVariable ("id") Long id);
+    @GetMapping("/find/{id}")
+    public Quartos findById(@PathVariable ("id") Long id);
 
     @PutMapping("/{quartoID}")
     Quartos alterarDadoQuarto(@PathVariable ("quartoID") Long quartoId, @RequestBody Quartos quartos);
 
     @PostMapping
-    Quartos saveQuartos(Quartos quartos);
+    Quartos saveQuartos(@RequestBody Quartos quartos);
 }

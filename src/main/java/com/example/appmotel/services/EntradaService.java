@@ -23,6 +23,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class EntradaService {
+    private final MapaFeing mapaFeing;
+    private final QuartosFeing quartosFeing;
+    private final ItensFeing itensFeing;
     @PersistenceContext
     private EntityManager manager;
     double totalHorasEntrada;
@@ -35,14 +38,9 @@ public class EntradaService {
     Entradas entradas;
     double entradaEConsumo;
     Float totalMapaGeral;
-
     List<EntradaConsumo> entradaConsumoList = new ArrayList<>();
     private final EntradaRepository entradaRepository;
     private final EntradaConsumoRepository entradaConsumoRepository;
-
-    private final MapaFeing mapaFeing;
-    private final QuartosFeing quartosFeing;
-    private final ItensFeing itensFeing;
 
     @Autowired
     public EntradaService(
@@ -51,7 +49,7 @@ public class EntradaService {
     MapaFeing mapaFeing,
     QuartosFeing quartosFeing,
     ItensFeing itensFeing
-    ) {
+    ){
         this.entradaRepository = entradaRepository;
         this.entradaConsumoRepository = entradaConsumoRepository;
         this.mapaFeing = mapaFeing;
@@ -62,7 +60,7 @@ public class EntradaService {
     public List<EntradaSimplesResponse> findAll (){
         final var findAll = entradaRepository.findAll();
         List<EntradaSimplesResponse> entradaSimplesResponseList = new ArrayList<>();
-        findAll.forEach( entradas ->{
+        findAll.forEach( entradas -> {
             EntradaSimplesResponse entradaSimplesResponse = new EntradaSimplesResponse(
                     entradas.getId(),
                     entradas.getQuartos().getNumero(),
@@ -121,6 +119,7 @@ public class EntradaService {
 
     public Entradas registerEntrada(Entradas entradas) {
         Quartos quartoOut = quartosFeing.findById(entradas.getQuartos().getId());
+
         if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.OCUPADO)){
             throw new EntityConflict("Quarto Ocupado");
         }
@@ -137,8 +136,13 @@ public class EntradaService {
         entradas.setStatusEntrada(StatusEntrada.EM_ANDAMENTO);
 
         quartoOut.setStatusDoQuarto(StatusDoQuarto.OCUPADO);
-        quartosFeing.saveQuartos(quartoOut);
-        return entradaRepository.save(entradas);
+        var b = quartosFeing.saveQuartos(quartoOut);
+        System.out.println("salvou quarto" + b.getId());
+        System.out.println();
+        entradas.setQuartos(b);
+        final var a =entradaRepository.save(entradas);
+        System.out.println("salvou entrada");
+        return a;
     }
 
     public void updateEntradaData(Long entradaId, Entradas request) {

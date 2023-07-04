@@ -2,7 +2,6 @@ package com.example.appmotel.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.util.Optional;
 
 @Entity
 public class EntradaConsumo {
@@ -21,45 +20,21 @@ public class EntradaConsumo {
 
     private Float total;
 
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public Long getId() {
-        return id;
-    }
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
-    public Itens getItens() {
-        return itens;
-    }
-    public Entradas getEntradas() {
-        return entradas;
-    }
-    public void setEntradas(Entradas entradas) {
-        this.entradas = entradas;
-    }
-    public Float getTotal() {
-        return total;
-    }
-    public void setTotal(Float total) {
-        this.total = total;
-    }
-
+    public void setId(Long id) { this.id = id; }
+    public Long getId() { return id; }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public Itens getItens() { return itens;}
+    public Entradas getEntradas() { return entradas; }
+    public void setEntradas(Entradas entradas) { this.entradas = entradas; }
+    public Float getTotal() { return total; }
+    public void setTotal(Float total) { this.total = total; }
+    public void setItens(Itens itens) { this.itens = itens; }
     public EntradaConsumo(Integer quantidade, Itens itens, Entradas entradas) {
         this.quantidade = quantidade;
         this.itens = itens;
         this.entradas = entradas;
         this.total = quantidade.floatValue() * itens.getValor();
     }
-    public EntradaConsumo() {
-    }
-
-    public void setItens(Itens itens) {
-        this.itens = itens;
-    }
+    public EntradaConsumo() {}
 }
