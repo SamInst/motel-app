@@ -5,12 +5,12 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Itens {
-    @Id
     private Long id;
 
     private String descricao;
     private Float valor;
 
+    @Id
     public Long getId() {
         return id;
     }

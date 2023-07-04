@@ -193,16 +193,45 @@ public class EntradaService {
 
                     if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
                         totalHorasEntrada = 30.0;
-                    } else {
+                    }
+
+                    else {
                         totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
                         if (minutosRestantes > 0) {
-                            totalHorasEntrada += 40.0;
+                            totalHorasEntrada += 10.0;
+                            if (minutosRestantes > 30){
+                                totalHorasEntrada += 5.0;
+                            }
                         }
                     }
                 }
         );
         valorEntrada = totalHorasEntrada;
     }
+
+    private void calcularHora2() {
+        List<Entradas> entradas = entradaRepository.findAll();
+        entradas.forEach(entrada -> {
+            Duration diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
+            long minutos = diferenca.toMinutes();
+            int horas = (int) (minutos / 60);
+            int minutosRestantes = (int) (minutos % 60);
+
+            if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
+                totalHorasEntrada = 30.0;
+            } else {
+                totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
+                if (minutosRestantes > 0) {
+                    totalHorasEntrada += 10.0;
+                }
+            }
+
+            int intervalsOfThirtyMinutes = (int) Math.ceil(minutos / 30.0);
+            double additionalCost = intervalsOfThirtyMinutes * 5.0;
+            valorEntrada = totalHorasEntrada + additionalCost;
+        });
+    }
+
 
     private void validacaoPagamento(Entradas request){
         totalMapaGeral = mapaFeing.totalMapaGeral();
