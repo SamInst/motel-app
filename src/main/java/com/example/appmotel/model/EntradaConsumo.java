@@ -11,7 +11,7 @@ public class EntradaConsumo {
 
     private Integer quantidade;
 
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.PERSIST)
     private Itens itens;
 
     @JsonIgnore

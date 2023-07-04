@@ -254,8 +254,9 @@ public class EntradaService {
 
     private void consumoVazio(){
         var semConsumo = itensFeing.itemVazio();
+
         EntradaConsumo novoConsumo = new EntradaConsumo();
-        novoConsumo.setItens(semConsumo.get());
+        novoConsumo.setItens(semConsumo);
         novoConsumo.setQuantidade(0);
         novoConsumo.setTotal(0F);
         novoConsumo.setEntradas(entradas);

@@ -80,39 +80,28 @@ public class Entradas {
     public TipoPagamento getTipoPagamento() {
         return tipoPagamento;
     }
-
     public void setTipoPagamento(TipoPagamento tipoPagamento) {
         this.tipoPagamento = tipoPagamento;
     }
-
     public StatusPagamento getStatus_pagamento() {
         return status_pagamento;
     }
-
     public void setStatus_pagamento(StatusPagamento status_pagamento) {
         this.status_pagamento = status_pagamento;
     }
-
     public List<EntradaConsumo> getEntradaConsumo() {
         return entradaConsumo;
     }
-
     public void setEntradaConsumo(List<EntradaConsumo> entradaConsumo) {
         this.entradaConsumo = entradaConsumo;
     }
-
-    public Quartos getQuartos() {
-        return quartos;
-    }
-
+    public Quartos getQuartos() {return quartos;}
     public void setQuartos(Quartos quartos) {
         this.quartos = quartos;
     }
-
     public StatusEntrada getStatusEntrada() {
         return statusEntrada;
     }
-
     public void setStatusEntrada(StatusEntrada statusEntrada) {
         this.statusEntrada = statusEntrada;
     }

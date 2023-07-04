@@ -23,8 +23,8 @@ public interface ItensFeing {
     Itens criaItens(@RequestBody Itens descricao);
 
     @GetMapping("/{itemId}")
-    public Itens findItemById(@PathVariable ("itemId") Long itemId);
+    Itens findItemById(@PathVariable ("itemId") Long itemId);
 
     @GetMapping("/itemVazio")
-    Optional<Itens> itemVazio();
+    Itens itemVazio();
 }
