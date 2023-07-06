@@ -1,16 +1,19 @@
 package com.example.appmotel.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class Itens {
+    @Id
     private Long id;
-
     private String descricao;
     private Float valor;
 
-    @Id
+
     public Long getId() {
         return id;
     }

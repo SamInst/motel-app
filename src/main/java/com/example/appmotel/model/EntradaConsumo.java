@@ -8,10 +8,8 @@ public class EntradaConsumo {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
     private Integer quantidade;
-
-    @ManyToOne(cascade=CascadeType.PERSIST)
+    @ManyToOne
     private Itens itens;
 
     @JsonIgnore

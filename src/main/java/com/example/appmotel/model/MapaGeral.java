@@ -8,7 +8,6 @@ import java.time.LocalTime;
 @Entity
 public class MapaGeral {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private LocalDate data;
     private String report;
@@ -57,6 +56,14 @@ public class MapaGeral {
 
     public void setApartment(Integer apartment) {
         this.apartment = apartment;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public MapaGeral() {

@@ -19,8 +19,10 @@ public class EntradaConsumoService {
     private final EntradaConsumoRepository entradaConsumoRepository;
     private final ItensFeing itensFeing;
     private final EntradaRepository entradaRepository;
-
-    public EntradaConsumoService(EntradaConsumoRepository entradaConsumoRepository, ItensFeing itensFeing, EntradaRepository entradaRepository) {
+    public EntradaConsumoService(
+        EntradaConsumoRepository entradaConsumoRepository,
+        ItensFeing itensFeing,
+        EntradaRepository entradaRepository) {
         this.entradaConsumoRepository = entradaConsumoRepository;
         this.itensFeing = itensFeing;
         this.entradaRepository = entradaRepository;
