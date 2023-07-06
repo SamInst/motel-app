@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface EntradaRepository extends JpaRepository<Entradas, Long> {
-//    List<Entradas> findByApt(Integer apt);
-
     List<Entradas> findEntradasByStatusEntrada(StatusEntrada statusEntrada);
+
 }

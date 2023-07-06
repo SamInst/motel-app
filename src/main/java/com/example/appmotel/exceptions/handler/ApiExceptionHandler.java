@@ -22,7 +22,7 @@ import java.util.List;
 
 @ControllerAdvice
 public class ApiExceptionHandler{
-    private static final String ERROR_BUSINESS = "Erro de Conflito";
+    private static final String ERROR_BUSINESS = "Erro de Requisição";
     private static final String ENTIDADE_NAO_ENCONTRADA = "Entidade Não encontrada";
     private static final String ERRROR_REQUEST = "Erro de Requisição";
     private static final String ERRROR_SERVER = "Erro de Servidor";

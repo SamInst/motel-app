@@ -12,7 +12,6 @@ public class EntradaConsumo {
     @ManyToOne
     private Itens itens;
 
-    @JsonIgnore
     @ManyToOne
     private Entradas entradas;
 

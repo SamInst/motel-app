@@ -11,6 +11,8 @@ import com.example.appmotel.response.EntradaConsumoResponse;
 import com.example.appmotel.response.StatusEntrada;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -62,19 +64,20 @@ public class EntradaConsumoService {
         final var item = itensFeing.findItemById(entradaConsumo.getItens().getId());
         Entradas entrada = entradaRepository.findById(entradaConsumo.getEntradas().getId())
                 .orElseThrow(()-> new EntityNotFound("entrada não encontrada"));
-
         EntradaConsumo entradaConsumo1 = new EntradaConsumo(
                 entradaConsumo.getQuantidade(),
                 item,
                 entrada
         );
-        var a =entradaConsumoRepository.save(entradaConsumo1);
-        System.out.println(a.getId() + " salvo");
-        return a;
+        return entradaConsumoRepository.save(entradaConsumo1);
     }
 
     public ResponseEntity<Object> deletaConsumoPorEntradaId(Long id_consumo) {
         entradaConsumoRepository.deleteById(id_consumo);
         return ResponseEntity.noContent().build();
+    }
+
+    public List<EntradaConsumo> findEntradaConsumoByEntrada(Long entrada_id){
+        return entradaConsumoRepository.findEntradaConsumoByEntradas_Id(entrada_id);
     }
 }

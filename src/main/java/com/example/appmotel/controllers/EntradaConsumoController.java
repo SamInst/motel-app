@@ -31,4 +31,9 @@ public class EntradaConsumoController {
     public ResponseEntity<Object> deletaConsumoPorEntradaId( @PathVariable ("id_consumo") Long id_consumo){
         return  entradaConsumoService.deletaConsumoPorEntradaId(id_consumo);
     }
+
+    @GetMapping("/findByEntrada")
+    public List<EntradaConsumo> findEntradaConsumoByEntrada(Long entrada_id){
+        return entradaConsumoService.findEntradaConsumoByEntrada(entrada_id);
+    }
 }

@@ -26,6 +26,7 @@ public class EntradaService {
     private final MapaFeing mapaFeing;
     private final QuartosFeing quartosFeing;
     private final ItensFeing itensFeing;
+    private final EntradaConsumoService entradaConsumoService;
     @PersistenceContext
     private EntityManager manager;
     double totalHorasEntrada;
@@ -48,13 +49,14 @@ public class EntradaService {
     EntradaConsumoRepository entradaConsumoRepository,
     MapaFeing mapaFeing,
     QuartosFeing quartosFeing,
-    ItensFeing itensFeing
-    ){
+    ItensFeing itensFeing,
+    EntradaConsumoService entradaConsumoService){
         this.entradaRepository = entradaRepository;
         this.entradaConsumoRepository = entradaConsumoRepository;
         this.mapaFeing = mapaFeing;
         this.quartosFeing = quartosFeing;
         this.itensFeing = itensFeing;
+        this.entradaConsumoService = entradaConsumoService;
     }
 
     public List<EntradaSimplesResponse> findAll (){
@@ -262,8 +264,8 @@ public class EntradaService {
         mapaGeral.setApartment(entradas.getQuartos().getNumero());
         mapaGeral.setData(LocalDate.now());
         mapaGeral.setEntrada((float) entradaEConsumo);
-        mapaGeral.setReport(relatorio);
         mapaGeral.setTotal((float) valorTotal);
+        mapaGeral.setReport(relatorio);
         mapaGeral.setSaida(0F);
         mapaGeral.setHora(LocalTime.now());
 
@@ -283,13 +285,12 @@ public class EntradaService {
 
     private void consumoVazio(){
         var semConsumo = itensFeing.itemVazio();
-
-        EntradaConsumo novoConsumo = new EntradaConsumo();
-        novoConsumo.setItens(semConsumo);
-        novoConsumo.setQuantidade(0);
-        novoConsumo.setTotal(0F);
-        novoConsumo.setEntradas(entradas);
-        entradaConsumoRepository.save(novoConsumo);
+        EntradaConsumo entradaConsumo = new EntradaConsumo(
+                0,
+                semConsumo,
+                entradas
+        );
+        entradaConsumoService.addConsumo(entradaConsumo);
     }
 
     public List<Entradas> findByStatusEntrada(StatusEntrada statusEntrada){
