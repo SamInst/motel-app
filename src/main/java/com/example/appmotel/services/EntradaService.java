@@ -136,6 +136,7 @@ public class EntradaService {
         entradas.setStatus_pagamento(StatusPagamento.PENDENTE);
         entradas.setTipoPagamento(TipoPagamento.PENDENTE);
         entradas.setStatusEntrada(StatusEntrada.EM_ANDAMENTO);
+        entradas.setDataRegistroEntrada(LocalDate.now());
 
         quartoOut.setStatusDoQuarto(StatusDoQuarto.OCUPADO);
         var b = quartosFeing.saveQuartos(quartoOut);
@@ -160,6 +161,7 @@ public class EntradaService {
                 request.getStatus_pagamento(),
                 entradas.getStatusEntrada()
         );
+        entradaAtualizada.setDataRegistroEntrada(LocalDate.now());
         entradaRepository.save(entradaAtualizada);
 
         if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)) {
@@ -196,14 +198,10 @@ public class EntradaService {
                     if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
                         totalHorasEntrada = 30.0;
                     }
-
                     else {
                         totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
                         if (minutosRestantes > 0) {
                             totalHorasEntrada += 10.0;
-                            if (minutosRestantes > 30){
-                                totalHorasEntrada += 5.0;
-                            }
                         }
                     }
                 }
@@ -295,5 +293,10 @@ public class EntradaService {
 
     public List<Entradas> findByStatusEntrada(StatusEntrada statusEntrada){
         return entradaRepository.findEntradasByStatusEntrada(statusEntrada);
+    }
+
+    public List<Entradas> findEntradaByDay(){
+       LocalDate today = LocalDate.now();
+       return entradaRepository.findEntradasByDataRegistroEntrada(today);
     }
 }

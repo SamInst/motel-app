@@ -11,8 +11,6 @@ import com.example.appmotel.response.EntradaConsumoResponse;
 import com.example.appmotel.response.StatusEntrada;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -37,7 +35,6 @@ public class EntradaConsumoService {
     public List<EntradaConsumoResponse> consumoResponse(Long id, List<EntradaConsumoResponse> entradaConsumo) {
         final var consumo = entradaConsumoRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Consumo não Encontrado"));
-
         entradaConsumo.forEach(a -> {
             Float valorItem = consumo.getQuantidade() * consumo.getItens().getValor();
 

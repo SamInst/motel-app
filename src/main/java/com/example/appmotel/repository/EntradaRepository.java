@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface EntradaRepository extends JpaRepository<Entradas, Long> {
     List<Entradas> findEntradasByStatusEntrada(StatusEntrada statusEntrada);
-
+    List<Entradas> findEntradasByDataRegistroEntrada(LocalDate localDate);
 }

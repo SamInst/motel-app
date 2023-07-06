@@ -9,7 +9,6 @@ import com.example.appmotel.services.EntradaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -46,5 +45,9 @@ public class EntradaController {
     @GetMapping("/findByStatusEntrada")
     public List<Entradas> findByStatus(StatusEntrada statusEntrada){
         return entradaService.findByStatusEntrada(statusEntrada);
+    }
+    @GetMapping("/findEntradaHoje")
+    public List<Entradas> findEntradaToday(){
+        return entradaService.findEntradaByDay();
     }
 }

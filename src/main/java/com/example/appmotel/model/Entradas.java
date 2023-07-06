@@ -5,6 +5,7 @@ import com.example.appmotel.response.StatusPagamento;
 import com.example.appmotel.response.TipoPagamento;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class Entradas {
     private List<EntradaConsumo> entradaConsumo;
 
     private StatusEntrada statusEntrada;
+
+    private LocalDate dataRegistroEntrada;
 
     public Entradas() {
     }
@@ -80,6 +83,15 @@ public class Entradas {
     public TipoPagamento getTipoPagamento() {
         return tipoPagamento;
     }
+
+    public LocalDate getDataRegistroEntrada() {
+        return dataRegistroEntrada;
+    }
+
+    public void setDataRegistroEntrada(LocalDate dataRegistroEntrada) {
+        this.dataRegistroEntrada = dataRegistroEntrada;
+    }
+
     public void setTipoPagamento(TipoPagamento tipoPagamento) {
         this.tipoPagamento = tipoPagamento;
     }

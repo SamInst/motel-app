@@ -11,10 +11,9 @@ public class EntradaConsumo {
     private Integer quantidade;
     @ManyToOne
     private Itens itens;
-
     @ManyToOne
+    @JsonIgnore
     private Entradas entradas;
-
     private Float total;
 
     public void setId(Long id) { this.id = id; }
