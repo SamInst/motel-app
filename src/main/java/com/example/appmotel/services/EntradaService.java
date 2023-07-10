@@ -75,13 +75,14 @@ public class EntradaService {
     public ResponseEntity<AtomicReference<EntradaResponse>> findById(Long id) {
         AtomicReference<EntradaResponse> response = new AtomicReference<>();
         entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(id);
-
-        final var entrada = entradaRepository.findById(id).orElseThrow(() -> new EntityNotFound("Entrada não foi Cadastrada ou não existe mais"));
+        final var entrada = entradaRepository.findById(id).orElseThrow(
+                () -> new EntityNotFound("Entrada não foi Cadastrada ou não existe mais"));
         calcularHora(id);
         Double totalConsumo = entradaRepository.totalConsumo(id);
 
         if (totalConsumo == null){ totalConsumo = (double) 0; }
         double soma = totalConsumo + valorEntrada;
+
         List<ConsumoResponse> consumoResponseList = new ArrayList<>();
         entradaConsumoList.forEach(consumo -> {
             ConsumoResponse consumoResponse = new ConsumoResponse(
@@ -132,7 +133,8 @@ public class EntradaService {
     }
 
     public void updateEntradaData(Long entradaId, Entradas request) {
-        entradas = entradaRepository.findById(entradaId).orElseThrow(() -> new EntityNotFound("Entrada não encontrada")
+        entradas = entradaRepository.findById(entradaId).orElseThrow(
+                () -> new EntityNotFound("Entrada não encontrada")
         );
         var entradaAtualizada = new Entradas(
                 entradas.getId(),
@@ -177,14 +179,6 @@ public class EntradaService {
         valorEntrada = totalHorasEntrada;
     }
 
-    private void calcularACada30Minutos(Long request) {
-        Entradas entrada = entradaRepository.findById(request)
-                .orElseThrow(() -> new EntityNotFound("Entity Not found"));
-
-        diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
-        long minutos = diferenca.toMinutes();
-    }
-
     private void validacaoPagamento(Entradas request){
         totalMapaGeral = mapaFeing.totalMapaGeral();
         Double totalConsumo = entradaRepository.totalConsumo(request.getId());
@@ -222,9 +216,9 @@ public class EntradaService {
     private void consumoVazio(){
         var semConsumo = itensFeing.itemVazio();
         EntradaConsumo entradaConsumo = new EntradaConsumo(
-                0,
-                semConsumo,
-                entradas
+            0,
+            semConsumo,
+            entradas
         );
         entradaConsumoService.addConsumo(entradaConsumo);
     }
