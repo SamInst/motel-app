@@ -171,37 +171,18 @@ public class EntradaService {
         horas = (int) (minutos / 60);
         minutosRestantes = (int) (minutos % 60);
 
-        if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
-            totalHorasEntrada = 30.0;
-        } else {
-            totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
-            if (minutosRestantes > 0) {
-                totalHorasEntrada += 10.0;
-            }
-        }
+        if (horas < 2) { totalHorasEntrada = 30.0; }
+        else { int minutes = (int) ((((float)minutos - 120)/30)*5);
+               totalHorasEntrada = 30 + minutes; }
         valorEntrada = totalHorasEntrada;
     }
 
-    private void calcularACada30Minutos() {
-        List<Entradas> entradas = entradaRepository.findAll();
-        entradas.forEach(entrada -> {
-            Duration diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
-            long minutos = diferenca.toMinutes();
-            int horas = (int) (minutos / 60);
-            int minutosRestantes = (int) (minutos % 60);
+    private void calcularACada30Minutos(Long request) {
+        Entradas entrada = entradaRepository.findById(request)
+                .orElseThrow(() -> new EntityNotFound("Entity Not found"));
 
-            if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
-                totalHorasEntrada = 30.0;
-            } else {
-                totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
-                if (minutosRestantes > 0) {
-                    totalHorasEntrada += 10.0;
-                }
-            }
-            int intervalsOfThirtyMinutes = (int) Math.ceil(minutos / 30.0);
-            double additionalCost = intervalsOfThirtyMinutes * 5.0;
-            valorEntrada = totalHorasEntrada + additionalCost;
-        });
+        diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
+        long minutos = diferenca.toMinutes();
     }
 
     private void validacaoPagamento(Entradas request){
