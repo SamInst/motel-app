@@ -1,6 +1,5 @@
 package com.example.appmotel.controllers;
 
-
 import com.example.appmotel.model.Entradas;
 import com.example.appmotel.response.EntradaResponse;
 import com.example.appmotel.response.EntradaSimplesResponse;
@@ -9,6 +8,8 @@ import com.example.appmotel.services.EntradaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -16,11 +17,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequestMapping("/entradas")
 public class EntradaController {
     private final EntradaService entradaService;
-
     public EntradaController(EntradaService entradaService) {
         this.entradaService = entradaService;
     }
-
 
     @GetMapping
     public List<EntradaSimplesResponse> findAll(){
@@ -48,6 +47,11 @@ public class EntradaController {
     }
     @GetMapping("/findEntradaHoje")
     public List<Entradas> findEntradaToday(){
-        return entradaService.findEntradaByDay();
+        return entradaService.findEntradaByToday();
+    }
+
+    @GetMapping("/findEntradaByData")
+    public List<Entradas> findEntradaByData(LocalDate data_entrada) {
+        return entradaService.findEntradaByDate(data_entrada);
     }
 }

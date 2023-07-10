@@ -13,7 +13,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ImportAutoConfiguration({FeignAutoConfiguration.class})
 @EnableWebMvc
 public class AppMotelApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(AppMotelApplication.class, args);
 	}

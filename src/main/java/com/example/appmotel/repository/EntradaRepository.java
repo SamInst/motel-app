@@ -12,4 +12,10 @@ import java.util.List;
 public interface EntradaRepository extends JpaRepository<Entradas, Long> {
     List<Entradas> findEntradasByStatusEntrada(StatusEntrada statusEntrada);
     List<Entradas> findEntradasByDataRegistroEntrada(LocalDate localDate);
+    @Query("select sum(m.total) from EntradaConsumo m where m.entradas.id = :id_entrada")
+    Double totalConsumo(Long id_entrada);
+
+    @Query("select u from Entradas u where u.dataRegistroEntrada = :data")
+    List<Entradas> findEntradasByData(LocalDate data);
+
 }

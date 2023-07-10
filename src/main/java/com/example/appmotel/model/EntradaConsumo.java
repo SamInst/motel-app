@@ -12,7 +12,7 @@ public class EntradaConsumo {
     @ManyToOne
     private Itens itens;
     @ManyToOne
-    @JsonIgnore
+//    @JsonIgnore
     private Entradas entradas;
     private Float total;
 
@@ -22,10 +22,7 @@ public class EntradaConsumo {
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
     public Itens getItens() { return itens;}
     public Entradas getEntradas() { return entradas; }
-    public void setEntradas(Entradas entradas) { this.entradas = entradas; }
     public Float getTotal() { return total; }
-    public void setTotal(Float total) { this.total = total; }
-    public void setItens(Itens itens) { this.itens = itens; }
     public EntradaConsumo(Integer quantidade, Itens itens, Entradas entradas) {
         this.quantidade = quantidade;
         this.itens = itens;
@@ -33,4 +30,20 @@ public class EntradaConsumo {
         this.total = quantidade.floatValue() * itens.getValor();
     }
     public EntradaConsumo() {}
+
+    public void setItens(Itens itens) {
+        this.itens = itens;
+    }
+
+    public void setEntradas(Entradas entradas) {
+        this.entradas = entradas;
+    }
+
+    public void setTotal(Float total) {
+        this.total = total;
+    }
+
+    public EntradaConsumo(Itens itens) {
+        this.itens = itens;
+    }
 }

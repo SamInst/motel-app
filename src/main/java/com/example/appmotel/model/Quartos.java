@@ -40,4 +40,17 @@ public class Quartos {
     }
     public Quartos() {
     }
+
+    public void setNumero(Integer numero) {
+        this.numero = numero;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setCapacidadePessoa(Integer capacidadePessoa) {
+        this.capacidadePessoa = capacidadePessoa;
+    }
+
 }

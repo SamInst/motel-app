@@ -1,7 +1,6 @@
 package com.example.appmotel.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -74,5 +73,15 @@ public class MapaGeral {
         this.report = report;
         this.apartment = apartment;
         this.entrada = entrada;
+    }
+
+    public MapaGeral(LocalDate data, String report, Integer apartment, Float entrada, Float saida, Float total, LocalTime hora) {
+        this.data = data;
+        this.report = report;
+        this.apartment = apartment;
+        this.entrada = entrada;
+        this.saida = saida;
+        this.total = total;
+        this.hora = hora;
     }
 }

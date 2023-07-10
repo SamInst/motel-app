@@ -4,7 +4,6 @@ import com.example.appmotel.response.StatusEntrada;
 import com.example.appmotel.response.StatusPagamento;
 import com.example.appmotel.response.TipoPagamento;
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -20,17 +19,13 @@ public class Entradas {
     private LocalTime horaEntrada;
     private LocalTime horaSaida;
     private String placa;
-
     @OneToMany
     private List<EntradaConsumo> entradaConsumo;
-
     private StatusEntrada statusEntrada;
-
     private LocalDate dataRegistroEntrada;
 
     public Entradas() {
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -55,9 +50,6 @@ public class Entradas {
     public String getPlaca() {
         return placa;
     }
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
     private TipoPagamento tipoPagamento;
     private StatusPagamento status_pagamento;
 
@@ -78,6 +70,17 @@ public class Entradas {
         this.tipoPagamento = tipoPagamento;
         this.status_pagamento = status_pagamento;
         this.statusEntrada = statusEntrada;
+    }
+
+    public Entradas(Quartos quartos, LocalTime horaEntrada, LocalTime horaSaida, String placa, StatusEntrada statusEntrada, LocalDate dataRegistroEntrada, TipoPagamento tipoPagamento, StatusPagamento status_pagamento) {
+        this.quartos = quartos;
+        this.horaEntrada = horaEntrada;
+        this.horaSaida = horaSaida;
+        this.placa = placa;
+        this.statusEntrada = statusEntrada;
+        this.dataRegistroEntrada = dataRegistroEntrada;
+        this.tipoPagamento = tipoPagamento;
+        this.status_pagamento = status_pagamento;
     }
 
     public TipoPagamento getTipoPagamento() {
@@ -104,9 +107,6 @@ public class Entradas {
     public List<EntradaConsumo> getEntradaConsumo() {
         return entradaConsumo;
     }
-    public void setEntradaConsumo(List<EntradaConsumo> entradaConsumo) {
-        this.entradaConsumo = entradaConsumo;
-    }
     public Quartos getQuartos() {return quartos;}
     public void setQuartos(Quartos quartos) {
         this.quartos = quartos;
@@ -117,4 +117,13 @@ public class Entradas {
     public void setStatusEntrada(StatusEntrada statusEntrada) {
         this.statusEntrada = statusEntrada;
     }
+
+    public void setPlaca(String placa) {
+        this.placa = placa;
+    }
+
+    public void setEntradaConsumo(List<EntradaConsumo> entradaConsumo) {
+        this.entradaConsumo = entradaConsumo;
+    }
+
 }

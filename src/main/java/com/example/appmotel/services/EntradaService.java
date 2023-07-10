@@ -9,8 +9,6 @@ import com.example.appmotel.model.*;
 import com.example.appmotel.repository.EntradaConsumoRepository;
 import com.example.appmotel.repository.EntradaRepository;
 import com.example.appmotel.response.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,8 +25,6 @@ public class EntradaService {
     private final QuartosFeing quartosFeing;
     private final ItensFeing itensFeing;
     private final EntradaConsumoService entradaConsumoService;
-    @PersistenceContext
-    private EntityManager manager;
     double totalHorasEntrada;
     double valorEntrada;
     Duration diferenca;
@@ -81,15 +77,10 @@ public class EntradaService {
         entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(id);
 
         final var entrada = entradaRepository.findById(id).orElseThrow(() -> new EntityNotFound("Entrada não foi Cadastrada ou não existe mais"));
-        calcularHora();
+        calcularHora(id);
+        Double totalConsumo = entradaRepository.totalConsumo(id);
 
-        Double totalConsumo = manager.createQuery(
-                        "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = :id", Double.class)
-                .setParameter("id", id)
-                .getSingleResult();
-        if (totalConsumo == null){
-            totalConsumo = (double) 0;
-        }
+        if (totalConsumo == null){ totalConsumo = (double) 0; }
         double soma = totalConsumo + valorEntrada;
         List<ConsumoResponse> consumoResponseList = new ArrayList<>();
         entradaConsumoList.forEach(consumo -> {
@@ -121,36 +112,28 @@ public class EntradaService {
 
     public Entradas registerEntrada(Entradas entradas) {
         Quartos quartoOut = quartosFeing.findById(entradas.getQuartos().getId());
-
-        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.OCUPADO)){
-            throw new EntityConflict("Quarto Ocupado");
+        switch (quartoOut.getStatusDoQuarto()) {
+            case OCUPADO -> throw new EntityConflict("Quarto Ocupado");
+            case NECESSITA_LIMPEZA -> throw new EntityConflict("Quarto Precisa de limpeza!");
+            case RESERVADO -> throw new EntityConflict("Quarto Reservado!");
         }
-        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.NECESSITA_LIMPEZA)){
-            throw new EntityConflict("Quarto Precisa de limpeza!");
-        }
-        if (quartoOut.getStatusDoQuarto().equals(StatusDoQuarto.RESERVADO)){
-            throw new EntityConflict("Quarto Reservado!");
-        }
-        entradas.setHoraEntrada(LocalTime.now());
-        entradas.setHoraSaida(LocalTime.of(0,0));
-        entradas.setStatus_pagamento(StatusPagamento.PENDENTE);
-        entradas.setTipoPagamento(TipoPagamento.PENDENTE);
-        entradas.setStatusEntrada(StatusEntrada.EM_ANDAMENTO);
-        entradas.setDataRegistroEntrada(LocalDate.now());
-
-        quartoOut.setStatusDoQuarto(StatusDoQuarto.OCUPADO);
-        var b = quartosFeing.saveQuartos(quartoOut);
-        System.out.println("salvou quarto" + b.getId());
-        System.out.println();
-        entradas.setQuartos(b);
-        final var a =entradaRepository.save(entradas);
-        System.out.println("salvou entrada");
-        return a;
+        Entradas request = new Entradas(
+            quartoOut,
+            LocalTime.now(),
+            LocalTime.of(0,0),
+            entradas.getPlaca(),
+            StatusEntrada.ATIVA,
+            LocalDate.now(),
+            TipoPagamento.PENDENTE,
+            StatusPagamento.PENDENTE
+        );
+        quartosFeing.saveQuartos(quartoOut);
+        return entradaRepository.save(request);
     }
 
     public void updateEntradaData(Long entradaId, Entradas request) {
-        entradas = entradaRepository.findById(entradaId).orElseThrow(() -> new EntityNotFound("Entrada não encontrada"));
-
+        entradas = entradaRepository.findById(entradaId).orElseThrow(() -> new EntityNotFound("Entrada não encontrada")
+        );
         var entradaAtualizada = new Entradas(
                 entradas.getId(),
                 entradas.getQuartos(),
@@ -165,51 +148,41 @@ public class EntradaService {
         entradaRepository.save(entradaAtualizada);
 
         if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)) {
-            if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)
-                    && entradaAtualizada.getStatusEntrada().equals(StatusEntrada.FINALIZADA)){
+            if (entradaAtualizada.getStatusEntrada().equals(StatusEntrada.FINALIZADA)){
                 throw new EntityConflict("A Entrada já foi salva no mapa");
             }
             entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(entradaId);
-            calcularHora();
-            if (entradaAtualizada.getEntradaConsumo() == null) {
-                consumoVazio();
-            }
+            calcularHora(entradaAtualizada.getId());
+            if (entradaAtualizada.getEntradaConsumo() == null) { consumoVazio(); }
             validacaoPagamento(entradas);
             validacaoHorario();
             salvaNoMapa(request);
-
-            Quartos quartoOut = entradas.getQuartos();
-            quartoOut.setStatusDoQuarto(StatusDoQuarto.DISPONIVEL);
-            quartosFeing.saveQuartos(quartoOut);
-            entradaAtualizada.setStatusEntrada(StatusEntrada.FINALIZADA);
+            atualizaQuarto(entradas.getQuartos(), entradaAtualizada);
             entradaRepository.save(entradaAtualizada);
         }
     }
 
-    private void calcularHora(){
-        List<Entradas> entradas = entradaRepository.findAll();
-        entradas.forEach(entradas1 -> {
-                    diferenca = Duration.between(entradas1.getHoraEntrada(), entradas1.getHoraSaida());
+    private void calcularHora(Long request) {
+        Entradas entrada = entradaRepository.findById(request)
+            .orElseThrow(() -> new EntityNotFound("Entity Not found"));
 
-                    long minutos = diferenca.toMinutes();
-                    horas = (int) (minutos / 60);
-                    minutosRestantes = (int) (minutos % 60);
+        diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
+        long minutos = diferenca.toMinutes();
+        horas = (int) (minutos / 60);
+        minutosRestantes = (int) (minutos % 60);
 
-                    if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
-                        totalHorasEntrada = 30.0;
-                    }
-                    else {
-                        totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
-                        if (minutosRestantes > 0) {
-                            totalHorasEntrada += 10.0;
-                        }
-                    }
-                }
-        );
+        if (horas < 2 || (horas == 2 && minutosRestantes <= 20)) {
+            totalHorasEntrada = 30.0;
+        } else {
+            totalHorasEntrada = 30.0 + ((horas - 2) * 10.0);
+            if (minutosRestantes > 0) {
+                totalHorasEntrada += 10.0;
+            }
+        }
         valorEntrada = totalHorasEntrada;
     }
 
-    private void calcularHora2() {
+    private void calcularACada30Minutos() {
         List<Entradas> entradas = entradaRepository.findAll();
         entradas.forEach(entrada -> {
             Duration diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
@@ -225,22 +198,15 @@ public class EntradaService {
                     totalHorasEntrada += 10.0;
                 }
             }
-
             int intervalsOfThirtyMinutes = (int) Math.ceil(minutos / 30.0);
             double additionalCost = intervalsOfThirtyMinutes * 5.0;
             valorEntrada = totalHorasEntrada + additionalCost;
         });
     }
 
-
     private void validacaoPagamento(Entradas request){
         totalMapaGeral = mapaFeing.totalMapaGeral();
-
-        Double totalConsumo = manager.createQuery(
-                        "SELECT sum(m.total) FROM EntradaConsumo m where m.entradas.id = :id", Double.class)
-                .setParameter("id", request.getId())
-                .getSingleResult();
-
+        Double totalConsumo = entradaRepository.totalConsumo(request.getId());
         entradaEConsumo = valorEntrada + totalConsumo;
         valorTotal = totalMapaGeral + entradaEConsumo;
     }
@@ -248,35 +214,26 @@ public class EntradaService {
     public void validacaoHorario(){
         LocalTime noite = LocalTime.of(18,0,0);
         LocalTime dia = LocalTime.of(6,0,0);
-
-        if (LocalTime.now().isAfter(noite) || LocalTime.now().isBefore(dia)){
-            relatorio = "ENTRADA NOITE";
-        } else {
-            relatorio = "ENTRADA DIA";
-        }
+        relatorio = LocalTime.now().isAfter(noite) || LocalTime.now().isBefore(dia)
+                ? "ENTRADA NOITE" : "ENTRADA DIA";
     }
 
-    private void salvaNoMapa(Entradas request){
+    private void salvaNoMapa(Entradas request) {
         MapaGeral mapaGeral = new MapaGeral(
+                LocalDate.now(),
+                relatorio,
+                entradas.getQuartos().getNumero(),
+                (float) entradaEConsumo,
+                0F,
+                (float) valorTotal,
+                LocalTime.now()
         );
-        mapaGeral.setApartment(entradas.getQuartos().getNumero());
-        mapaGeral.setData(LocalDate.now());
-        mapaGeral.setEntrada((float) entradaEConsumo);
-        mapaGeral.setTotal((float) valorTotal);
-        mapaGeral.setReport(relatorio);
-        mapaGeral.setSaida(0F);
-        mapaGeral.setHora(LocalTime.now());
-
-        if (request.getTipoPagamento().equals(TipoPagamento.PIX)){
-            mapaGeral.setReport(relatorio + " (PIX)");
-            mapaGeral.setSaida(mapaGeral.getEntrada());
-        }
-        if (request.getTipoPagamento().equals(TipoPagamento.CARTAO)){
-            mapaGeral.setReport(relatorio + " (CARTAO)");
-            mapaGeral.setSaida(mapaGeral.getEntrada());
-        }
-        if (request.getTipoPagamento().equals(TipoPagamento.DINHEIRO)){
-            mapaGeral.setReport(relatorio + " (DINHEIRO)");
+        switch (request.getTipoPagamento()){
+            case PIX ->    { mapaGeral.setReport(relatorio + " (PIX)");
+                             mapaGeral.setSaida(mapaGeral.getEntrada()); }
+            case CARTAO -> { mapaGeral.setSaida(mapaGeral.getEntrada());
+                             mapaGeral.setSaida(mapaGeral.getEntrada()); }
+            case DINHEIRO -> mapaGeral.setReport(relatorio + " (DINHEIRO)");
         }
         mapaFeing.createMapa(mapaGeral);
     }
@@ -295,8 +252,19 @@ public class EntradaService {
         return entradaRepository.findEntradasByStatusEntrada(statusEntrada);
     }
 
-    public List<Entradas> findEntradaByDay(){
+    public List<Entradas> findEntradaByToday(){
        LocalDate today = LocalDate.now();
        return entradaRepository.findEntradasByDataRegistroEntrada(today);
+    }
+    public List<Entradas> findEntradaByDate(LocalDate data){
+        return entradaRepository.findEntradasByDataRegistroEntrada(data);
+    }
+
+    private void atualizaQuarto(Quartos quartos, Entradas entradaAtualizada){
+        quartos = entradas.getQuartos();
+        quartos.setStatusDoQuarto(StatusDoQuarto.DISPONIVEL);
+        quartosFeing.saveQuartos(quartos);
+        entradaAtualizada.setStatusEntrada(StatusEntrada.FINALIZADA);
+        entradaRepository.save(entradaAtualizada);
     }
 }

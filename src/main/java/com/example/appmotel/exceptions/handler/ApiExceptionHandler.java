@@ -1,9 +1,7 @@
 package com.example.appmotel.exceptions.handler;
 
-import com.example.appmotel.exceptions.EntidadeNaoEncontradaException;
 import com.example.appmotel.exceptions.EntityConflict;
 import com.example.appmotel.exceptions.EntityNotFound;
-import com.example.appmotel.exceptions.NegocioException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,15 +22,13 @@ public class ApiExceptionHandler{
     private static final String ERROR_BUSINESS = "Erro de Requisição";
     private static final String ENTIDADE_NAO_ENCONTRADA = "Entidade Não encontrada";
     private static final String ERRROR_REQUEST = "Erro de Requisição";
+    private static final String OBJECT_NULL = "O Objeto retornou um valor nulo.";
     private static final String ERRROR_SERVER = "Erro de Servidor";
-
     private static final String MSG_ERRO_SERVER = "Ocorreu um erro inesperado, entre em contato com administrador do sistema";
 
     @Value("${spring.application.name}")
     private String projetoName;
-
     private final MessageSource messageSource;
-
     public ApiExceptionHandler(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
@@ -55,6 +50,17 @@ public class ApiExceptionHandler{
                         projetoName,
                         request.getRequestURI(),
                         ERRROR_REQUEST,
+                        ex.getMessage(),
+                        ex.getClass().getName()));
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorMessage> handleIllegalArgument2(NullPointerException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage(
+                        projetoName,
+                        request.getRequestURI(),
+                        OBJECT_NULL,
                         ex.getMessage(),
                         ex.getClass().getName()));
     }
