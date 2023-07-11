@@ -1,5 +1,6 @@
 package com.example.appmotel.services;
 
+import com.example.appmotel.exceptions.EntityConflict;
 import com.example.appmotel.exceptions.EntityNotFound;
 import com.example.appmotel.model.Troco;
 import com.example.appmotel.repository.EntradaRepository;
@@ -26,6 +27,9 @@ public class TrocoService {
 
         Float trocoFinal = troco.getValorEntrada() - entrada.getTotal_entrada();
         troco.setTroco(trocoFinal);
+        if (trocoFinal < 0){
+            throw new EntityConflict("O valor ficou negativo, verifique o valor inserido e tente novamente");
+        }
         return trocoRepository.save(troco);
     }
 }
