@@ -5,6 +5,10 @@ import com.example.appmotel.response.EntradaResponse;
 import com.example.appmotel.response.EntradaSimplesResponse;
 import com.example.appmotel.response.StatusEntrada;
 import com.example.appmotel.services.EntradaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +26,15 @@ public class EntradaController {
     }
 
     @GetMapping
-    public List<EntradaSimplesResponse> findAll(){
-        return entradaService.findAll();
+    public Page<EntradaSimplesResponse> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortField
+    ) {
+        Sort.Order sortOrder = Sort.Order.desc(sortField);
+        Sort sort = Sort.by(sortOrder);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return entradaService.findAll(pageable);
     }
 
     @GetMapping("/{id}")

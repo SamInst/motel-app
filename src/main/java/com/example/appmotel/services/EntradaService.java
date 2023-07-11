@@ -10,6 +10,9 @@ import com.example.appmotel.repository.EntradaConsumoRepository;
 import com.example.appmotel.repository.EntradaRepository;
 import com.example.appmotel.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
@@ -55,10 +58,28 @@ public class EntradaService {
         this.entradaConsumoService = entradaConsumoService;
     }
 
-    public List<EntradaSimplesResponse> findAll (){
-        final var findAll = entradaRepository.findAll();
+//    public List<EntradaSimplesResponse> findAll (){
+//        final var findAll = entradaRepository.findAll();
+//        List<EntradaSimplesResponse> entradaSimplesResponseList = new ArrayList<>();
+//        findAll.forEach( entradas -> {
+//            EntradaSimplesResponse entradaSimplesResponse = new EntradaSimplesResponse(
+//                    entradas.getId(),
+//                    entradas.getQuartos().getNumero(),
+//                    entradas.getHoraEntrada(),
+//                    entradas.getHoraSaida(),
+//                    entradas.getPlaca(),
+//                    entradas.getStatusEntrada()
+//            );
+//            entradaSimplesResponseList.add(entradaSimplesResponse);
+//        });
+//        return entradaSimplesResponseList;
+//    }
+
+    public Page<EntradaSimplesResponse> findAll(Pageable pageable) {
+        Page<Entradas> page = entradaRepository.findAll(pageable);
+
         List<EntradaSimplesResponse> entradaSimplesResponseList = new ArrayList<>();
-        findAll.forEach( entradas -> {
+        page.forEach(entradas -> {
             EntradaSimplesResponse entradaSimplesResponse = new EntradaSimplesResponse(
                     entradas.getId(),
                     entradas.getQuartos().getNumero(),
@@ -69,8 +90,9 @@ public class EntradaService {
             );
             entradaSimplesResponseList.add(entradaSimplesResponse);
         });
-        return entradaSimplesResponseList;
+        return new PageImpl<>(entradaSimplesResponseList, pageable, page.getTotalElements());
     }
+
 
     public ResponseEntity<AtomicReference<EntradaResponse>> findById(Long id) {
         AtomicReference<EntradaResponse> response = new AtomicReference<>();
