@@ -152,14 +152,20 @@ public class EntradaService {
         entradaAtualizada.setDataRegistroEntrada(LocalDate.now());
         entradaRepository.save(entradaAtualizada
         );
+        calcularHora(entradaAtualizada.getId());
+        validacaoPagamento(entradas);
+        if (request.getTipoPagamento().equals(TipoPagamento.DINHEIRO)){
+                entradaAtualizada.setTotal_entrada((float) entradaEConsumo);
+            entradaRepository.save(entradaAtualizada);
+        }
         if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)) {
             if (entradaAtualizada.getStatusEntrada().equals(StatusEntrada.FINALIZADA)){
                 throw new EntityConflict("A Entrada já foi salva no mapa");
             }
             entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(entradaId);
-            calcularHora(entradaAtualizada.getId());
+
             if (entradaAtualizada.getEntradaConsumo() == null) { consumoVazio(); }
-            validacaoPagamento(entradas);
+
             validacaoHorario();
             salvaNoMapa(request);
             atualizaQuarto(entradas.getQuartos(), entradaAtualizada);
@@ -185,6 +191,7 @@ public class EntradaService {
     private void validacaoPagamento(Entradas request){
         totalMapaGeral = mapaFeing.totalMapaGeral();
         Double totalConsumo = entradaRepository.totalConsumo(request.getId());
+        if (totalConsumo == null){ totalConsumo = 0D; }
         entradaEConsumo = valorEntrada + totalConsumo;
         valorTotal = totalMapaGeral + entradaEConsumo;
     }

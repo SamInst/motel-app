@@ -21,8 +21,9 @@ public class EntradaConsumoController {
         return entradaConsumoService.BuscaTodos();
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
+
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EntradaConsumo criaConsumo(EntradaConsumo entradaConsumo){
         return entradaConsumoService.addConsumo(entradaConsumo);
     }

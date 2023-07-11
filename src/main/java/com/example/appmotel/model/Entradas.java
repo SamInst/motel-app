@@ -23,6 +23,7 @@ public class Entradas {
     private List<EntradaConsumo> entradaConsumo;
     private StatusEntrada statusEntrada;
     private LocalDate dataRegistroEntrada;
+    private Float total_entrada;
 
     public Entradas() {
     }
@@ -126,4 +127,11 @@ public class Entradas {
         this.entradaConsumo = entradaConsumo;
     }
 
+    public Float getTotal_entrada() {
+        return total_entrada;
+    }
+
+    public void setTotal_entrada(Float total_entrada) {
+        this.total_entrada = total_entrada;
+    }
 }
