@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -58,23 +57,6 @@ public class EntradaService {
         this.entradaConsumoService = entradaConsumoService;
     }
 
-//    public List<EntradaSimplesResponse> findAll (){
-//        final var findAll = entradaRepository.findAll();
-//        List<EntradaSimplesResponse> entradaSimplesResponseList = new ArrayList<>();
-//        findAll.forEach( entradas -> {
-//            EntradaSimplesResponse entradaSimplesResponse = new EntradaSimplesResponse(
-//                    entradas.getId(),
-//                    entradas.getQuartos().getNumero(),
-//                    entradas.getHoraEntrada(),
-//                    entradas.getHoraSaida(),
-//                    entradas.getPlaca(),
-//                    entradas.getStatusEntrada()
-//            );
-//            entradaSimplesResponseList.add(entradaSimplesResponse);
-//        });
-//        return entradaSimplesResponseList;
-//    }
-
     public Page<EntradaSimplesResponse> findAll(Pageable pageable) {
         Page<Entradas> page = entradaRepository.findAll(pageable);
 
@@ -93,8 +75,7 @@ public class EntradaService {
         return new PageImpl<>(entradaSimplesResponseList, pageable, page.getTotalElements());
     }
 
-
-    public ResponseEntity<AtomicReference<EntradaResponse>> findById(Long id) {
+    public AtomicReference<EntradaResponse> findById(Long id) {
         AtomicReference<EntradaResponse> response = new AtomicReference<>();
         entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(id);
         final var entrada = entradaRepository.findById(id).orElseThrow(
@@ -130,7 +111,7 @@ public class EntradaService {
                 valorEntrada,
                 soma
         ));
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     public Entradas registerEntrada(Entradas entradas) {
@@ -169,8 +150,8 @@ public class EntradaService {
                 entradas.getStatusEntrada()
         );
         entradaAtualizada.setDataRegistroEntrada(LocalDate.now());
-        entradaRepository.save(entradaAtualizada);
-
+        entradaRepository.save(entradaAtualizada
+        );
         if (request.getStatus_pagamento().equals(StatusPagamento.CONCLUIDO)) {
             if (entradaAtualizada.getStatusEntrada().equals(StatusEntrada.FINALIZADA)){
                 throw new EntityConflict("A Entrada já foi salva no mapa");
@@ -188,8 +169,8 @@ public class EntradaService {
 
     private void calcularHora(Long request) {
         Entradas entrada = entradaRepository.findById(request)
-            .orElseThrow(() -> new EntityNotFound("Entity Not found"));
-
+            .orElseThrow(() -> new EntityNotFound("Entity Not found")
+            );
         diferenca = Duration.between(entrada.getHoraEntrada(), entrada.getHoraSaida());
         long minutos = diferenca.toMinutes();
         horas = (int) (minutos / 60);

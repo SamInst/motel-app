@@ -69,9 +69,8 @@ public class EntradaConsumoService {
         return entradaConsumoRepository.save(entradaConsumo1);
     }
 
-    public ResponseEntity<Object> deletaConsumoPorEntradaId(Long id_consumo) {
+    public void deletaConsumoPorEntradaId(Long id_consumo) {
         entradaConsumoRepository.deleteById(id_consumo);
-        return ResponseEntity.noContent().build();
     }
 
     public List<EntradaConsumo> findEntradaConsumoByEntrada(Long entrada_id){

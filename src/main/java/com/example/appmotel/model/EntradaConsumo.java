@@ -12,7 +12,7 @@ public class EntradaConsumo {
     @ManyToOne
     private Itens itens;
     @ManyToOne
-//    @JsonIgnore
+    @JsonIgnore
     private Entradas entradas;
     private Float total;
 
