@@ -7,6 +7,7 @@ public class Troco {
     @ManyToOne
     @JsonIgnore
     private Entradas entradas;
+    @JsonIgnore
     private Float valorEntrada;
     private Float troco;
 

@@ -164,8 +164,8 @@ public class EntradaService {
                 throw new EntityConflict("A Entrada já foi salva no mapa");
             }
             entradaConsumoList = entradaConsumoRepository.findEntradaConsumoByEntradas_Id(entradaId);
-
-            if (entradaAtualizada.getEntradaConsumo() == null) { consumoVazio(); }
+            entradaAtualizada.setEntradaConsumo(entradaConsumoList);
+            if (entradaAtualizada.getEntradaConsumo().isEmpty()) { consumoVazio(); }
 
             validacaoHorario();
             salvaNoMapa(request);
@@ -251,6 +251,5 @@ public class EntradaService {
         quartos.setStatusDoQuarto(StatusDoQuarto.DISPONIVEL);
         quartosFeing.saveQuartos(quartos);
         entradaAtualizada.setStatusEntrada(StatusEntrada.FINALIZADA);
-        entradaRepository.save(entradaAtualizada);
     }
 }
