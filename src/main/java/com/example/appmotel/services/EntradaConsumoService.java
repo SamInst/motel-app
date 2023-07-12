@@ -2,14 +2,13 @@ package com.example.appmotel.services;
 
 import com.example.appmotel.exceptions.EntityConflict;
 import com.example.appmotel.exceptions.EntityNotFound;
-import com.example.appmotel.feing.ItensFeing;
+import com.example.appmotel.feign.ItensFeing;
 import com.example.appmotel.model.EntradaConsumo;
 import com.example.appmotel.model.Entradas;
 import com.example.appmotel.repository.EntradaConsumoRepository;
 import com.example.appmotel.repository.EntradaRepository;
 import com.example.appmotel.response.EntradaConsumoResponse;
 import com.example.appmotel.response.StatusEntrada;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
