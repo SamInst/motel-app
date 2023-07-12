@@ -1,4 +1,4 @@
-package com.example.appmotel.feing;
+package com.example.appmotel.feign;
 
 import com.example.appmotel.model.Itens;
 import org.springframework.cloud.openfeign.FeignClient;
