@@ -9,19 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/troco")
 public class TrocoController {
     private final TrocoService trocoService;
+    public TrocoController(TrocoService trocoService) { this.trocoService = trocoService; }
 
-    public TrocoController(TrocoService trocoService) {
-        this.trocoService = trocoService;
-    }
-
-    @GetMapping("/{troco_id}")
-    public Troco buscaTroco(@PathVariable("troco_id") Long troco_id){
-        return trocoService.troco(troco_id);
-    }
-
-    @PutMapping("/valor")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Troco inserirTroco(Troco troco){
-        return trocoService.inserirTroco(troco);
-    }
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Troco troco(Troco troco){ return trocoService.passarTroco(troco); }
 }

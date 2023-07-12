@@ -26,9 +26,9 @@ public class EntradaController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<EntradaSimplesResponse> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortField
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size,
+    @RequestParam(defaultValue = "id") String sortField
     ) {
         Sort.Order sortOrder = Sort.Order.desc(sortField);
         Sort sort = Sort.by(sortOrder);

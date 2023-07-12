@@ -1,0 +1,61 @@
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+        VALUES (7,'13:00', '19:00', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (1,'13:00', '19:30', 'placa1234', 0, 1,1, 1);
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (2,'13:00', '19:59', 'placa1234', 0, 1,1, 1);
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (3,'13:00', '16:00', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (4,'13:00', '16:10', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (5,'13:00', '16:59', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (6,'13:00', '20:59', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (7,'13:00', '21:00', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (8,'13:00', '21:01', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (9,'13:00', '15:20', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (10,'13:00', '15:21', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (11,'13:00', '15:30', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (12,'13:00', '15:59', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (13,'13:00', '16:00', 'placa1234', 0, 1,1, 1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (14,'13:00', '16:10', 'placa1234', 0, 1,1, 1);
+
+insert into entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id) VALUES
+                     (2, now(), '00:00','abc1234',2,1,1,1);
+
+insert into  quartos (id, capacidade_pessoa, descricao, numero, status_do_quarto)
+VALUES (1, 2, '',1,1);
+
+delete from tb_entradas_entrada_consumo where entrada_consumo_id> 0;
+delete from tb_entradas where id > 0;
+delete from entrada_consumo where id > 0;
+delete from troco where id > 0;
+
+insert into entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id) VALUES
+    (6, now(), '19:00','abc1234',2,1,1,1);
+
+insert into tb_entradas (id, hora_entrada, hora_saida, placa, status_entrada, status_pagamento, tipo_pagamento, quartos_id)
+VALUES (6, '', '19:00', 'placa1234', 0, 1,1, 1);
+
+select * from tb_entradas where data_registro_entrada = now();

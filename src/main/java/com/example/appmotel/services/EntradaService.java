@@ -131,6 +131,7 @@ public class EntradaService {
             TipoPagamento.PENDENTE,
             StatusPagamento.PENDENTE
         );
+        quartoOut.setStatusDoQuarto(StatusDoQuarto.OCUPADO);
         quartosFeing.saveQuartos(quartoOut);
         return entradaRepository.save(request);
     }

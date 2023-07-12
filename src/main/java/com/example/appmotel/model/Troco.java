@@ -3,14 +3,7 @@ package com.example.appmotel.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
-
-@Entity
 public class Troco {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
     @ManyToOne
     @JsonIgnore
     private Entradas entradas;
@@ -38,14 +31,6 @@ public class Troco {
 
     public void setValorEntrada(Float valorEntrada) {
         this.valorEntrada = valorEntrada;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Float getTroco() {
